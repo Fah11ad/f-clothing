@@ -7,33 +7,32 @@ import Header from "./components/header/header.component";
 import SignInAndSignUpPage from "./pages/sign-in-and-sign-up/sign-in-and-sign-up.component";
 import { auth, createUserProfileDocument } from "./firebase/firebase.utils";
 
-class App extends React.Component {
-  constructor() {
-    super();
+// REDUX 6 //
+import { connect } from "react-redux";
+import { setCurrentUser } from "./redux/user/user.actions";
 
-    this.state = {
-      currentUser: null,
-    };
-  }
+class App extends React.Component {
+  //REDUX 6 - f remove constructor with state
 
   unsubscribeFromAuth = null;
 
   componentDidMount() {
+    const { setCurrentUser } = this.props;
+
     this.unsubscribeFromAuth = auth.onAuthStateChanged(async (userAuth) => {
       if (userAuth) {
         const userRef = await createUserProfileDocument(userAuth);
         userRef.onSnapshot((snapShot) => {
-          this.setState({
-            currentUser: {
-              id: snapShot.id,
-              ...snapShot.data(),
-            },
+          //REDUX 6 - g replace setState with setCurrentUser action
+          setCurrentUser({
+            id: snapShot.id,
+            ...snapShot.data(),
           });
           // console.log(this.state);
-          
         });
       } else {
-        this.setState({ currenUser: userAuth });
+        //REDUX 6 - g replace setState with setCurrentUser action
+        setCurrentUser(userAuth);
       }
     });
   }
@@ -43,9 +42,10 @@ class App extends React.Component {
   }
 
   render() {
+    //REDUX 6 - h remove currentUser from the  <Header ... />
     return (
       <div>
-        <Header currentUser={this.state.currentUser} />
+        <Header />
         <Switch>
           <Route exact path="/" component={HomePage} />
           <Route path="/shop" component={ShopPage} />
@@ -55,5 +55,9 @@ class App extends React.Component {
     );
   }
 }
-
-export default App;
+//REDUX 6 - b //
+const mapDispatchToProps = (dispatch) => ({
+  setCurrentUser: (user) => dispatch(setCurrentUser(user)),
+});
+//REDUX 6 - a //
+export default connect(null, mapDispatchToProps)(App);
