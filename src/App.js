@@ -7,9 +7,13 @@ import Header from "./components/header/header.component";
 import SignInAndSignUpPage from "./pages/sign-in-and-sign-up/sign-in-and-sign-up.component";
 import { auth, createUserProfileDocument } from "./firebase/firebase.utils";
 
+import { createStructuredSelector } from 'reselect'
+import { selectCurrenUser } from './redux/user/user.selector'
+
 // REDUX 6 //
 import { connect } from "react-redux";
 import { setCurrentUser } from "./redux/user/user.actions";
+import CheckoutPage from "./pages/checkout/checkout.component";
 
 class App extends React.Component {
   //REDUX 6 - f remove constructor with state
@@ -49,6 +53,7 @@ class App extends React.Component {
         <Switch>
           <Route exact path="/" component={HomePage} />
           <Route path="/shop" component={ShopPage} />
+          <Route exact path='/checkout' component={CheckoutPage} />
           <Route
             exact
             path="/signin"
@@ -60,6 +65,7 @@ class App extends React.Component {
               )
             }
           />
+          
         </Switch>
       </div>
     );
@@ -67,8 +73,8 @@ class App extends React.Component {
 }
 
 // to access signed in user to helps to redirect after sgined in to home page
-const mapStateToProps = ({ user }) => ({
-  currentUser: user.currentUser,
+const mapStateToProps = createStructuredSelector({
+  currentUser: selectCurrenUser,
 });
 
 //REDUX 6 - b //
