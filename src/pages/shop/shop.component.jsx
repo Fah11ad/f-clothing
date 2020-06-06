@@ -2,20 +2,12 @@ import React from "react";
 import { Route } from "react-router-dom";
 import { connect } from "react-redux";
 
-import CollectionsOverview from "../../components/collections-overview/collections-overview.component";
-import CollectionPage from "../collection/collection.component";
+import CollectionsOverviewContainer from "../../components/collections-overview/collections-overview.container";
+import CollectionPageContainer from "../collection/collection.container";
 
-import {
-  firestore,
-  convertCollectionsSnapshotToMap,
-} from "../../firebase/firebase.utils";
-import { updateCollections } from "../../redux/shop/shop.actions";
-
-import WithSpinner from "../../components/with-spinner/with-spinner.component";
+import { fetchCollectionsStart } from "../../redux/shop/shop.actions"; //SAGA6
 
 
-const CollectionsOverviewWithSpinner = WithSpinner(CollectionsOverview)
-const CollectionPageWithSpinner = WithSpinner(CollectionPage)
 
 //Bring SHOP Data to our App - 1 - convert it to class
 class ShopPage extends React.Component {
@@ -24,38 +16,35 @@ class ShopPage extends React.Component {
   };
 
   unsubscribeFromSnapshot = null;
-  //Bring SHOP Data to our App - 2 -
+  //Bring SHOP Data to our App - 2, 4 - Was modified because of thunk
   componentDidMount() {
-    const { updateCollections } = this.props;
-    const collectionRef = firestore.collection("collections");
-    collectionRef.get().then((snapshot) => {
-      //Bring SHOP Data to our App - 4 -
-      const collectionsMap = convertCollectionsSnapshotToMap(snapshot);
-      updateCollections(collectionsMap); //Bring SHOP Data to our App - 9 -
-
-      this.setState({ loading: false });
-    });
+    const { fetchCollectionsStart } = this.props; //SAGA6
+    fetchCollectionsStart();
   }
 
   render() {
     const { match } = this.props;
-    const { loading } = this.state
     return (
       <div className="shop-page">
-        <Route exact path={`${match.path}`} render={(props) => <CollectionsOverviewWithSpinner isLoading={loading} {...props} /> } />
+        <Route
+          exact
+          path={`${match.path}`}
+          component={CollectionsOverviewContainer}
+        />
         <Route
           path={`${match.path}/:collectionId`}
-          render={(props) => <CollectionPageWithSpinner  isLoading={loading} {...props} />}
-          />
+          component={CollectionPageContainer}
+        />
       </div>
     );
   }
 }
 
+
+
 //Bring SHOP Data to our App - 8 -
 const mapDispatchToProps = (dispatch) => ({
-  updateCollections: (collectionsMap) =>
-    dispatch(updateCollections(collectionsMap)),
+  fetchCollectionsStart: () => dispatch(fetchCollectionsStart()), //SAGA6
 });
 
 export default connect(null, mapDispatchToProps)(ShopPage);

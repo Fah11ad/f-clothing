@@ -78,21 +78,30 @@ export const convertCollectionsSnapshotToMap = (collections) => {
       items,
     };
   });
-  
+
   //Bring SHOP Data to our App - 4 - Convert the array to object to store it in our reducer
   return transformCollection.reduce((accumulator, collection) => {
-    accumulator[collection.title.toLowerCase()] = collection
-    return accumulator
-  }, {}) // 2nd parameter is empty as initial accumulator is empty
+    accumulator[collection.title.toLowerCase()] = collection;
+    return accumulator;
+  }, {}); // 2nd parameter is empty as initial accumulator is empty
 };
 
 //Bring SHOP Data to our App  END ///
 
+export const getCurrentUser = () => {
+  return new Promise((resolve, reject) => {
+    const unsubscribe = auth.onAuthStateChanged((userAuth) => {
+      unsubscribe();
+      resolve(userAuth);
+    }, reject);
+  });
+};
+
 export const auth = firebase.auth();
 export const firestore = firebase.firestore();
 
-const provider = new firebase.auth.GoogleAuthProvider();
-provider.setCustomParameters({ prompt: "select_account" });
-export const signInWithGoogle = () => auth.signInWithPopup(provider);
+export const googleProvider = new firebase.auth.GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: "select_account" });
+export const signInWithGoogle = () => auth.signInWithPopup(googleProvider);
 
 export default firebase;
